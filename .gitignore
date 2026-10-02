@@ -1,0 +1,11 @@
+data/
+outputs/
+*.pt
+*.ckpt
+*.h5
+*.zarr/
+*.npz
+*.npy
+__pycache__/
+.pytest_cache/
+.DS_Store

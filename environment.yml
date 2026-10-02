@@ -1,0 +1,15 @@
+name: aster
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy=2.4
+  - pandas=2.3
+  - h5py=3.16
+  - zarr=2.18
+  - pyarrow=23
+  - scikit-learn=1.9
+  - pyyaml=6.0
+  - pip:
+      - torch==2.7.1

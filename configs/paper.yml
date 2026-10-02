@@ -1,0 +1,21 @@
+model:
+  sequence_features: 160
+  sequence_hidden: 128
+  atac_contexts: 8
+  atac_bins: 100
+  atac_channels: 2
+  atac_hidden: 64
+  fusion_hidden: 64
+  tau_cell: 1.0
+  tau_variant: 1.0
+training:
+  dropout_candidates: [0.15, 0.30, 0.45]
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  positive_weight: 2.0
+  gradient_clip_norm: 1.0
+  max_epochs: 60
+  early_stopping_patience: 15
+  minimum_delta: 0.0001
+  refit_seeds: [2026, 2027, 2028]
+  outer_folds: [0, 1, 2, 3, 4]
