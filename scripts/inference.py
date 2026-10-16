@@ -8,11 +8,12 @@ import json
 import sys
 from pathlib import Path
 
+import pandas as pd
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.data import CachedDataset, LocusDataset  # noqa: E402
-from src.engine import predict  # noqa: E402
+from src.data import CachedDataset, LocusDataset, collate  # noqa: E402
+from src.engine import model_inputs, predict  # noqa: E402
 from src.model import ASTER, SequenceOnly  # noqa: E402
 
 
@@ -24,6 +25,8 @@ def main():
     parser.add_argument("--outer-fold", type=int, required=True, choices=range(5))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", default="auto")
+    parser.add_argument("--cell-contexts", action="store_true",
+                        help="Also export the held-out variant's highest-scoring ATAC context")
     args = parser.parse_args()
     device = torch.device("cuda" if args.device == "auto" and torch.cuda.is_available()
                           else "cpu" if args.device == "auto" else args.device)
@@ -51,6 +54,29 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     locus.to_parquet(args.output / "locus_predictions.parquet", index=False)
     variant.to_parquet(args.output / "variant_predictions.parquet", index=False)
+    if args.cell_contexts:
+        if model_kind != "aster":
+            parser.error("--cell-contexts requires an ASTER checkpoint")
+        names = (pd.read_csv(args.data_root / "stage2_multiome/model_contexts.tsv", sep="\t")
+                 .sort_values("cell_type_id").cell_type.tolist())
+        rows = []
+        with torch.inference_mode():
+            for _, matched in data.index.groupby("match_set_id", sort=True):
+                indices = matched.sort_values("mil_locus_id").index.to_numpy()
+                batch = collate([data[int(i)] for i in indices])
+                scores = torch.stack([
+                    model(**model_inputs(model, batch, device))["variant_cell_score"]
+                    for model in models
+                ]).float().mean(0).cpu()
+                scores = scores.masked_fill(~batch["cell_mask"], -torch.inf)
+                for i, locus_id in enumerate(batch["locus_id"]):
+                    for j in range(int(batch["variant_mask"][i].sum())):
+                        best = int(scores[i, j].argmax())
+                        rows.append({"mil_locus_id": locus_id,
+                                     "variant_row": int(batch["variant_row"][i, j]),
+                                     "top_cell_type": names[best],
+                                     "top_cell_score": float(scores[i, j, best])})
+        pd.DataFrame(rows).to_parquet(args.output / "variant_contexts.parquet", index=False)
     print(f"Scored {len(locus)} held-out bags and {len(variant)} variant memberships")
 
 

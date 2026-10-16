@@ -1,0 +1,19 @@
+name: aster-sei
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  - numpy=1.26.4
+  - pandas=2.3.1
+  - pyarrow=20
+  - h5py=3.14
+  - pyfaidx=0.9
+  - scipy
+  - pyyaml
+  - pysam
+  - scikit-learn
+  - pip:
+      - torch==2.3.1
+      - selene-sdk==0.6.0
+      - docopt==0.6.2

@@ -1,0 +1,3 @@
+region	rsid	mil_locus_id	variant_key_grch38	bag_size	rank_nd6	rank_t2d6	top_cell_nd6	top_cell_t2d6
+GLIS3	rs4237150	MIL_POS_T2DGGI_SIGNAL_0628	chr9:4290085:G:C	27	3	1	Beta	Beta
+PROX1	rs17712208	MIL_POS_T2DGGI_SIGNAL_0070	chr1:213977102:T:A	2	1	1	Stellate	Alpha

@@ -11,5 +11,12 @@ dependencies:
   - pyarrow=23
   - scikit-learn=1.9
   - pyyaml=6.0
+  - polars=1.43
+  - pysam=0.24
+  - scipy=1.17
+  - matplotlib=3.11
+  - numcodecs=0.15
+  - pyfaidx=0.9
+  - zlib
   - pip:
       - torch==2.7.1
